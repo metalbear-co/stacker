@@ -199,6 +199,7 @@ psm_stack_manipulation! {
         }
 
         unsafe impl Sync for Stack {}
+        unsafe impl Send for Stack {}
 
         impl Stack {
 

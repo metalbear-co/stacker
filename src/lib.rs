@@ -198,6 +198,8 @@ psm_stack_manipulation! {
             requested_size: usize
         }
 
+        unsafe impl Sync for Stack {}
+
         impl Stack {
 
             #[cfg(target_arch = "wasm32")]

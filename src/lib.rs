@@ -280,6 +280,26 @@ psm_stack_manipulation! {
                     }
                 }
             }
+
+            pub fn call_return<R, F: FnOnce() -> R>(&self, callback: F) -> R {
+                let mut opt_callback = Some(callback);
+                let mut ret = None;
+                let ret_ref = &mut ret;
+
+                // This wrapper around `callback` achieves two things:
+                // * It converts the `impl FnOnce` to a `dyn FnMut`.
+                //   `dyn` because we want it to not be generic, and
+                //   `FnMut` because we can't pass a `dyn FnOnce` around without boxing it.
+                // * It eliminates the generic return value, by writing it to the stack of this function.
+                //   Otherwise the closure would have to return an unsized value, which isn't possible.
+                let dyn_callback: &mut dyn FnMut() = &mut || {
+                    let taken_callback = opt_callback.take().unwrap();
+                    *ret_ref = Some(taken_callback());
+                };
+
+                self.call(dyn_callback);
+                ret.unwrap()
+            }
         }
 
         impl Drop for Stack {

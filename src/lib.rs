@@ -114,22 +114,21 @@ psm_stack_information! (
     }
 );
 
-thread_local! {
-    static STACK_LIMIT: Cell<Option<usize>> = Cell::new(unsafe {
-        guess_os_stack_limit()
-    })
-}
+// thread_local! {
+//     static STACK_LIMIT: Cell<Option<usize>> = Cell::new(unsafe {
+//         guess_os_stack_limit()
+//     })
+// }
 
 #[inline(always)]
 fn get_stack_limit() -> Option<usize> {
-    STACK_LIMIT.with(|s| s.get())
+    None
+    //STACK_LIMIT.with(|s| s.get())
 }
 
 #[inline(always)]
 #[allow(unused)]
-fn set_stack_limit(l: Option<usize>) {
-    STACK_LIMIT.with(|s| s.set(l))
-}
+fn set_stack_limit(_l: Option<usize>) {}
 
 psm_stack_manipulation! {
     yes {
@@ -280,7 +279,6 @@ psm_stack_manipulation! {
                     }
                 }
             }
-
             pub fn call_return<R, F: FnOnce() -> R>(&self, callback: F) -> R {
                 let mut opt_callback = Some(callback);
                 let mut ret = None;
